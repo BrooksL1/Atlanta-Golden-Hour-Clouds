@@ -1,0 +1,22 @@
+name: build-ics
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # run every 3 hours (UTC)
+  workflow_dispatch: {}      # allow manual runs
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python generate.py
+      - name: Commit updated ICS
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/index.ics
+          git commit -m "Update ICS" || echo "No changes"
+          git push
